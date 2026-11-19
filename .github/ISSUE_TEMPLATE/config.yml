@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security problem
+    url: https://github.com/ankitassoni4566-eng/mt5-trading-bot/security/advisories/new
+    about: Please report security issues privately.

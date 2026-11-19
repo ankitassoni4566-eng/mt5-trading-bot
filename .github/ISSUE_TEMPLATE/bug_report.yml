@@ -1,0 +1,30 @@
+name: Bug report
+description: Something isn't working
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "⚠️ Never paste passwords, `.env` contents or account numbers here."
+  - type: dropdown
+    id: version
+    attributes:
+      label: Which version?
+      options: [Mac, Windows]
+    validations: { required: true }
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations: { required: true }
+  - type: textarea
+    id: log
+    attributes:
+      label: Error message or log
+      description: Paste the relevant lines from the terminal or `data/bot.log`.
+      render: text
+  - type: input
+    id: env
+    attributes:
+      label: Setup
+      placeholder: "macOS 15 / Windows 11, Python 3.11, broker demo account"

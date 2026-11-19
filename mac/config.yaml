@@ -1,0 +1,71 @@
+# ─────────────────────────────────────────────────────────────
+#  MT5 Auto-Trading Bot — all settings live here
+# ─────────────────────────────────────────────────────────────
+
+# demo = only runs on an MT5 DEMO account (safe default)
+# live = real money. Also needs LIVE_TRADING_CONFIRM=YES_TRADE_REAL_MONEY in .env
+mode: demo
+
+loop_seconds: 30          # how often the bot checks the market
+magic: 270419             # ID stamped on every bot order; the bot only touches its own trades
+
+# Which markets to scan. Use a list, or the word all for every symbol your broker offers.
+# Symbol names differ by broker (XAUUSD vs GOLD, US30 vs DJ30) — check MT5 Market Watch.
+symbols: [EURUSD, GBPUSD, USDJPY, AUDUSD, USDCAD, USDCHF, NZDUSD, EURJPY, GBPJPY, XAUUSD]
+
+timeframes:
+  trend: H4               # big picture direction
+  entry: H1               # when to get in
+
+scan:
+  max_spread_atr: 0.15    # skip a symbol if spread is more than 15% of its ATR (too expensive)
+  min_bars: 250           # need this much history to read the trend
+
+strategy:
+  name: trend_pullback    # buy dips in uptrends, sell rallies in downtrends
+  ema_fast: 50
+  ema_slow: 200
+  adx_period: 14
+  adx_min: 22             # only trade when the trend is strong
+  rsi_period: 14
+  rsi_buy_below: 45       # in an uptrend, wait for RSI to dip below this, then turn up
+  rsi_sell_above: 55      # in a downtrend, wait for RSI to pop above this, then turn down
+  atr_period: 14
+  sl_atr: 1.5             # stop-loss distance = 1.5 x ATR
+  tp_atr: 3.0             # take-profit distance = 3 x ATR (2:1 reward/risk)
+
+# ── MULTIPLE TRADES AT ONCE ─────────────────────────────────
+risk:
+  risk_per_trade_pct: 0.5     # lose at most 0.5% of equity if a trade hits its stop
+  max_open_trades: 5          # up to 5 trades open at the same time
+  max_trades_per_symbol: 1    # one trade per market
+  max_trades_per_currency: 2  # e.g. at most 2 trades involving USD
+  max_total_risk_pct: 2.5     # all open trades together can risk at most 2.5%
+  max_new_trades_per_day: 10
+  deviation_points: 20        # allowed slippage when sending an order
+
+# ── TAKING PROFIT AUTOMATICALLY ─────────────────────────────
+profit:
+  breakeven_at_r: 1.0         # when a trade is +1R (profit = its risk), move stop to entry
+  partial_close_at_r: 1.5     # at +1.5R, bank part of the trade...
+  partial_close_fraction: 0.5 # ...this fraction (half)
+  trail_atr: 2.0              # after the partial close, trail the stop 2 x ATR behind price
+
+# ── DAILY PROFIT TARGET (a target with brakes, not a promise) ──
+daily:
+  target_pct: 1.0             # stop for the day at +1% equity
+  max_loss_pct: 2.0           # halt for the day at -2%
+  protect_at_fraction: 0.5    # at 50% of target: half risk on new trades + break-even stops
+  on_target: close_all        # close_all  or  trail_tight
+  giveback_from: 0.8          # if the day reached 80% of target...
+  giveback_to: 0.4            # ...and falls back to 40%, stop for the day
+
+telegram:
+  enabled: false              # set true after putting token + chat id in .env
+  daily_report: true
+
+storage:
+  db_path: data/bot.db
+  reports_dir: data/reports
+  heartbeat_file: data/heartbeat.txt
+  log_file: data/bot.log
